@@ -1,3 +1,5 @@
+# Maria Stoian - an suplimentar recuperare
+
 # Science  Researchers App
 
 ## How to run the application
