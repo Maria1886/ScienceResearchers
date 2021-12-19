@@ -2,6 +2,8 @@
 
 # Science  Researchers App
 
+## Postman requests collection: https://www.getpostman.com/collections/fdeaf58ad394432246fd
+
 ## How to run the application
 - Create a '.env' file in the root of the project
 - Populate the file with: 
