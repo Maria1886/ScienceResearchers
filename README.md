@@ -2,6 +2,8 @@
 
 # Science  Researchers App
 
+## Prezentare proiect: https://youtu.be/-Ndt0GA4EKo
+
 ## Postman requests collection: https://www.getpostman.com/collections/fdeaf58ad394432246fd
 
 ## How to run the application
