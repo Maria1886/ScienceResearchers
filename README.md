@@ -64,3 +64,13 @@
     * Needs 'author_id' (id in the 'Authors' table) as a query parameter
 
 ## !!! User must be logged_in in order to call all the APIs above.
+
+<hr>
+
+**Dragomir Denis-Alexandru**: Am verificat partea de backend. Nu ai prezentat cazuri de eroare.
+
+Punctaj - backend: **1,2 / 1,5**
+
+Punctaj - frontend: **TBD**
+
+Punctaj total (pentru zonele necompletate, pana la evaluare, se ia in considerare punctajul maxim): **3,7 / 4**
