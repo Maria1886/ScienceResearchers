@@ -5,8 +5,10 @@ const mendeleyBaseUrl = 'https://api.mendeley.com'
 const MendeleyApiURL = {
     RequestAcessToken: mendeleyBaseUrl + '/oauth/token',
     ListDocumentTypes: mendeleyBaseUrl + '/document_types',
-    SearchAuthorByEmail: (email) => mendeleyBaseUrl + `/profiles/v2?email=${email}`,
-    SearchAuthorById: (id) => mendeleyBaseUrl + `/profiles/v2/${id}`,
+    SearchAuthorProfileByEmail: (email) => mendeleyBaseUrl + `/profiles/v2?email=${email}`, 
+    SearchCatalogs: (keywords) => mendeleyBaseUrl + `/search/catalog?query=${keywords}`, 
+    SearchAuthorProfileById: (id) => mendeleyBaseUrl + `/profiles/v2/${id}`,
+    SearchAuthorProfileByScopusId: (id) => mendeleyBaseUrl + `/profiles/v2?scopus_author_id=${id}`,
     GetArticlesAuthoredById: (id) => mendeleyBaseUrl + `/catalog?author_profile_id=${id}`,
 }
 
@@ -49,11 +51,11 @@ const mendeley = {
         return response?.data;
     },
 
-    SearchAuthorByEmail: async (email) => {
+    SearchAuthorProfileByEmail: async (email) => {
         const token = await mendeley.RequestAccessToken();
 
         const response = await axios.get(
-            MendeleyApiURL.SearchAuthorByEmail(email),
+            MendeleyApiURL.SearchAuthorProfileByEmail(email),
             {
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -63,11 +65,39 @@ const mendeley = {
         return response?.data;
     },
 
-    SearchAuthorById: async (id) => {
+    SearchAuthorProfileById: async (id) => {
         const token = await mendeley.RequestAccessToken();
 
         const response = await axios.get(
-            MendeleyApiURL.SearchAuthorById(id),
+            MendeleyApiURL.SearchAuthorProfileById(id),
+            {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+        )
+        return response?.data;
+    },
+
+    SearchAuthorProfileByScopusId: async (id) => {
+        const token = await mendeley.RequestAccessToken();
+
+        const response = await axios.get(
+            MendeleyApiURL.SearchAuthorProfileByScopusId(id),
+            {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+        )
+        return response?.data;
+    },
+
+    SearchCatalogs: async (keywords) => {
+        const token = await mendeley.RequestAccessToken();
+
+        const response = await axios.get(
+            MendeleyApiURL.SearchCatalogs(keywords),
             {
                 headers: {
                     'Authorization': `Bearer ${token}`

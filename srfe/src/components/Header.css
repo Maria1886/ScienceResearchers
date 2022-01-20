@@ -1,0 +1,9 @@
+.active {
+    border-radius: 10px;
+    background-color: rgb(31, 50, 68);
+}
+
+.active-register {
+    border-radius: 10px;
+    background-color: white !important;
+}

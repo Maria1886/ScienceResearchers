@@ -20,6 +20,11 @@ const Author = sequelize.define(
         },
         profile_id: {
             type: Sequelize.STRING(50),
+            allowNull: true,
+            unique: true
+        },
+        scopus_id: {
+            type: Sequelize.STRING(50),
             allowNull: false,
             unique: true
         }

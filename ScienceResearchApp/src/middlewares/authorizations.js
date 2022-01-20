@@ -32,7 +32,7 @@ function ensureNotAuthenticated(req, res, next){
 
     try {
         // try verify the token
-        jwt.verify(token, ConfigurationSettings.jwt_access_token_secret || process.env.JWT_ACCESS_TOKEN_SECRET)
+        jwt.verify(token, process.env.JWT_ACCESS_TOKEN_SECRET)
         // if valid then not authorized
         return res.sendStatus(401);
     } catch (e) {

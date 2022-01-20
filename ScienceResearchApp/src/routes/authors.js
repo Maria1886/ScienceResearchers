@@ -6,49 +6,27 @@ const mendeley = require('../modules/mendeleyClient');
 const Author = require('../models/Author')
 const User  = require('../models/User')
 
-router.get('/search', async (req, res) => {
-    // get author email or profile id from query
-    const email = req.query.author_email;
-    const id = req.query.author_profile_id;
-
-    if (!id && !email) return res.sendStatus(400);
-
+router.get('/favorites', async (req, res) => {
     try {
-        // search author in mendeley based on the type of input
-        let mendeleyResult;
-        if (email) {
-            mendeleyResult = await mendeley.SearchAuthorByEmail(email);
-            mendeleyResult = mendeleyResult.length > 0 ? mendeleyResult[0] : null;
-        } else {
-            mendeleyResult = await mendeley.SearchAuthorById(id);
-        }
-
-        // insert author in our db if any
-        if (mendeleyResult){
-            var existing = await Author.findOne({
-                where: {
-                    profile_id: mendeleyResult.id
-                }
-            })
-            // insert only if author doesn't exist in db
-            if (!existing){
-                await Author.create({
-                    profile_id: mendeleyResult.id,
-                    first_name: mendeleyResult.first_name,
-                    last_name: mendeleyResult.last_name
-                })
+        const user = await User.findOne({
+            attributes: [],
+            where: {
+                id: req.userId
+            },
+            include: {
+                model: Author, 
+                attributes: ['id', 'first_name', 'last_name']
             }
-        }
-
-        res.json(mendeleyResult);
+        })
+        return res.json(user.authors)
     } catch (error) {
-        console.log(error)
-        res.sendStatus(500);
+        console.error(error)
+        return res.sendStatus(500);
     }
-});
+})
 
-router.post('/favorite', async (req, res) => {
-    // get author profile id from query
+router.post('/favorites', async (req, res) => {
+    // get author id (our db) from query
     const author_id = req.query.author_id;
     if (!author_id) return res.sendStatus(400);
 
@@ -78,19 +56,80 @@ router.post('/favorite', async (req, res) => {
     }
 })
 
-router.get('/list_favorites', async (req, res) => {
+router.delete('/favorites', async (req, res) => {
+    const author_id = req.query.author_id;
+    if (!author_id) return res.sendStatus(400);
+
     try {
+        // search author in db
+        const author = await Author.findOne({
+            where: {
+                id: author_id
+            }
+        })
+        if (!author) return res.sendStatus(404);
+
+        // get current user from db
         const user = await User.findOne({
             where: {
                 id: req.userId
-            }, 
-            include: Author
+            }
         })
-        return res.json(user.authors)
+        if (!user) return res.sendStatus(404);
+
+        user.removeAuthor(author);
+        return res.sendStatus(200);
     } catch (error) {
-        console.log(error);
+        console.log(error)
         return res.sendStatus(500);
     }
 })
+
+router.get('/:author_id', async (req, res) => {
+    // get author param id (our db)
+    const authorId = parseInt(req.params.author_id);
+
+    if (!authorId || isNaN(authorId)) return res.sendStatus(400);
+
+    try {
+        let author = await Author.findOne({
+            where: {
+                id: authorId
+            },
+            include: User
+        })
+
+        if (!author) return res.sendStatus(404);
+
+        mendeleyResult = await mendeley.SearchAuthorProfileById(author.dataValues.profile_id);
+        delete mendeleyResult.first_name;
+        delete mendeleyResult.last_name;
+        delete mendeleyResult.verified;
+        delete mendeleyResult.user_type;
+        delete mendeleyResult.created;
+        mendeleyResult.displayName = mendeleyResult.display_name;
+        delete mendeleyResult.display_name;
+        mendeleyResult.academicStatus = mendeleyResult.academic_status;
+        delete mendeleyResult.academic_status;
+        mendeleyResult.disciplines = mendeleyResult.disciplines.map(dis => dis.name);
+        mendeleyResult.photo = mendeleyResult.photos[mendeleyResult.photos.length - 1].url;
+        delete mendeleyResult.photos;
+        mendeleyResult.id = author.dataValues.id
+        mendeleyResult.addedToFav = false;
+
+        for (let fav of author.dataValues.users) {
+            if (fav.dataValues.id === req.userId) {
+                mendeleyResult.addedToFav = true;
+                break;
+            }
+        }
+
+        res.json(mendeleyResult);
+    } catch (error) {
+        console.log(error)
+        res.sendStatus(500);
+    }
+})
+
 
 module.exports = router;
